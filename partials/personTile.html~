@@ -1,0 +1,29 @@
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading h3"><span class="label label-info">#&nbsp;{{p.rank}}</span></div>
+  <div class="panel-body">
+    <a href="#/p/{{p.email}}" class="thumbnail"">
+      <img data-ng-src="https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg" 
+	   alt="hello-img-1" class="img-thumbnail img-responsive">
+    </a>
+    <div class="caption">
+      <h3>{{p.name}}</h3>
+      <ul class="list-group">
+	<li class="list-group-item">
+	  <span class="badge">{{p.mtd}}</span>
+	  Messages (MTD)
+	</li>
+	<li class="list-group-item">
+	  <span class="badge">1.23</span>
+	  Messages / Day
+	</li>
+	<li class="list-group-item">
+	  <span class="badge">{{p.latestDate | date:'yyyy-MM-dd'}}</span>
+	  Last Message Sent
+	</li>
+      </ul>
+    </div>
+  </div>
+</div>
+

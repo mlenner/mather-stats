@@ -1,0 +1,24 @@
+  <div>
+    <div class="container">
+      <loading data-ng-show="loadingMsgs"></loading>	
+      <div class="row" data-ng-hide="loadingMsgs">
+	<div class="col-xs-12 col-md-4" data-ng-repeat="p in board | orderByPriority | orderBy:'rank'">
+	  <person.tile></person.tile>
+	  <div class="clearfix visible-md"></div>
+	</div>	
+      </div>
+      
+      
+      <!--
+      <div class="row">		
+	<div data-ng-repeat="m in msgs | orderByPriority">
+	  <pre>{{m | json}}</pre>
+	  <span>{{m.subject}}</span>
+	</div>
+      </div>			
+      -->
+      
+    </div>
+      
+  </div>
+ 

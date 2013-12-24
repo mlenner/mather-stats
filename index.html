@@ -10,6 +10,10 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
 
+    <!-- own carousel css -->
+    <link rel="stylesheet" type="text/css" href="lib/css/owl.carousel.css" />
+    <link rel="stylesheet" type="text/css" href="lib/css/owl.theme.css" />
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -24,6 +28,13 @@
     <script src="https://cdn.firebase.com/v0/firebase.js"></script>
     <script src="https://cdn.firebase.com/libs/angularfire/0.5.0/angularfire.js"></script>
 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js"></script>
+
+    <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+
+    <!-- own carousel -->
+    <script src="lib/js/owl.carousel.min.js"></script>
+
     <script src="ngApp/controllers.js"></script>
     <script src="ngApp/directives.js"></script>
     <script src="ngApp/services.js"></script>
@@ -31,14 +42,11 @@
   </head>
   <body>
     <div class="page-header">
-	<h1 class="col-xs-12 text-primary"><a href="#/">Mather Leaderboard</a></h1>
+	   <h1 class="col-xs-12 text-primary"><a href="#/">Mather Leaderboard</a></h1>
     </div>
+    
     <div ng-view></div>
-      
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
-    <!--<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>-->
-
+        
   </body>
   
 </html>

@@ -1,17 +1,20 @@
+/*
+ * People service.  Owns the list of people and communications with Firebase to retrieve images per person.
+ */
 matherApp.service("People",function($firebase) {
 	var board = {
-		'mike.lenner@gmail.com' : { mtd : 0, name: 'Mike', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'jonericschwartz@gmail.com' : { mtd : 0, name : 'Jon', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'cretian@aol.com' : { mtd: 0, name : 'Dennis', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'bilello@gmail.com' : { mtd: 0, name : 'Charlie', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'robjwald@gmail.com' : { mtd: 0, name : 'Rob', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'citisncain@aol.com' : { mtd : 0, name : 'Israel', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'jgamils@gmail.com' : { mtd : 0, name : 'Jeff', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'mickymcpartland@yahoo.com' : { mtd: 0, name : 'Micky', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'iboschen@gmail.com' : { mtd: 0, name : 'Ian', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'rebarber@yahoo.com' : { mtd: 0, name : 'Rich', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'carson_cohen@yahoo.com' : { mtd : 0, name : 'Carson', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' },
-		'joshking@gmail.com' : { mtd: 0, name : 'Josh', url : 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/c82.83.515.515/s160x160/382977_10150384252519350_1097991563_n.jpg' }
+		'mike.lenner@gmail.com' : { mtd : 0, name: 'Mike', url : [] },
+		'jonericschwartz@gmail.com' : { mtd : 0, name : 'Jon', url : [] },
+		'cretian@aol.com' : { mtd: 0, name : 'Dennis', url : [] },
+		'bilello@gmail.com' : { mtd: 0, name : 'Charlie', url : [] },
+		'robjwald@gmail.com' : { mtd: 0, name : 'Rob', url : []},
+		'citisncain@aol.com' : { mtd : 0, name : 'Israel', url : [] },
+		'jgamils@gmail.com' : { mtd : 0, name : 'Jeff', url : [] },
+		'mickymcpartland@yahoo.com' : { mtd: 0, name : 'Micky', url : [] },
+		'iboschen@gmail.com' : { mtd: 0, name : 'Ian', url : [] },
+		'rebarber@yahoo.com' : { mtd: 0, name : 'Rich', url : [] },
+		'carson_cohen@yahoo.com' : { mtd : 0, name : 'Carson', url : [] },
+		'joshking@gmail.com' : { mtd: 0, name : 'Josh', url : [] }
 	}
 
 	var fbRef = new Firebase("https://mather-email.firebaseio.com/people");       
@@ -26,26 +29,25 @@ matherApp.service("People",function($firebase) {
 
 		for (var p in board) {
 			var name = board[p].name;
-			if (data[name]) 
-				board[p].url = data[name];	 
-		}
-		for (var key in data) {
-			console.log(key);
+			if (data && data[name]) 
+				board[p].url = data[name][0];	 
 		}
 	}
 
 	return {
 		get      : function() { return board; },
 		isLoaded : function() { return loaded; },
-		setImage : function(email, url) {
-		  	//board[person].url = url;
-		  	var key = email;
-		  	fb[key] = url;
-		  	fb.$save();
+		newImage : function(name, url) {
+			var child = fb.$child(name);
+		 	child.$set([url]);
 	  }
 	}
 });
 
+/*
+ * Messages service - owns the messages, owns the building of the leaderboard, 
+ * and the retrieval of the messages from Firebase
+ */
 matherApp.service('Messages',function($firebase, People) {
 	var fbRef = new Firebase("https://mather-email.firebaseio.com/msgs/2013/12");       
 	var loaded = false;	
@@ -67,27 +69,34 @@ matherApp.service('Messages',function($firebase, People) {
 		var data = newData;
 		var sorted = [];
 		var board = People.get();
+		var dayOfMonth = moment().format('DD');
 
 		for (var i=0; i < index.length; i++) {	  
 
-		// pull out name from message
-		var email = data[index[i]].email;
-		
-		if (board[email]) { 
-		    // increment MTD count
-		    board[email].mtd++; 
-		    
-		    // save latest email
-		    var sent = Date.parse(data[index[i]].date.split(" at")[0]);
-		    if (!board[email].latestDate || (sent > board[email].latestDate))
-		    	board[email].latestDate = sent;   
-		    
-		    // save email inside object
-		    board[email].email = email;
-		}	  
-	}
+			// pull out name from message
+			var email = data[index[i]].email;
+			
+			if (board[email]) { 
+			    // increment MTD count
+			    board[email].mtd++; 
+			    
+			    // update msg per day
+			    board[email].perDay = (board[email].mtd / dayOfMonth);
 
-	    // sort to define ranks
+			    // save latest email
+			    var sent = Date.parse(data[index[i]].date.split(" at")[0]);
+			    if (!board[email].latestDate || (sent > board[email].latestDate))
+			    	board[email].latestDate = sent;   
+			    
+			    // save email inside object
+			    board[email].email = email;
+			}	  
+		}
+
+		// days from 1st of the month
+		var dayOfMonth = moment().get('day');
+
+	    // sort to define ranks.  also add each person's email address to their record
 	    for (var p in board) {
 	    	board[p].person = p;
 	    	sorted.push(board[p]);
@@ -99,7 +108,6 @@ matherApp.service('Messages',function($firebase, People) {
 	    	board[p.person].rank = rank++; 
 	    });
 	}
-
 
 	return {
 		get : function() { return fb; },

@@ -1,11 +1,11 @@
 <div>
-  <div class="container">
-    <loading data-ng-show="loadingMsgs"></loading>	
-    <div class="row" data-ng-hide="loadingMsgs">
-     <div class="col-xs-12 col-md-4" data-ng-repeat="p in board | orderByPriority | orderBy:'rank'">
-       <person.tile></person.tile>
-     </div>	
-   </div>           
- </div>      
+	<div class="container">
+    	<loading data-ng-show="loadingMsgs"></loading>	
+    	<div class="row" data-ng-hide="loadingMsgs" id="board">
+    		<div class="col-xs-12 col-md-4 board-tile" data-ng-repeat="p in board | orderByPriority | orderBy:'rank'" rows-of-three>
+       			<person.tile></person.tile>
+     		</div>	
+   		</div>           
+ 	</div>      
 </div>
 

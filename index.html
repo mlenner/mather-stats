@@ -1,7 +1,7 @@
 <html data-ng-app="matherApp">
   <head>
 
-    <title>Hello</title>
+    <title>Mather Stats</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Latest compiled and minified CSS -->
@@ -42,7 +42,8 @@
   </head>
   <body>
     <div class="page-header">
-	   <h1 class="col-xs-12 text-primary"><a href="#/">Mather Leaderboard</a></h1>
+            <h1 class="col-xs-12 text-primary"><a href="#/">Mather Leaderboard</a> <small><span id="current-my"></span></small></h1>
+            <script type="text/javascript">$('#current-my').text(moment().format("MMMM YYYY"));</script>
     </div>
     
     <div ng-view></div>

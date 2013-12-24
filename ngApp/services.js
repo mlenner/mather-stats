@@ -49,7 +49,8 @@ matherApp.service("People",function($firebase) {
  * and the retrieval of the messages from Firebase
  */
 matherApp.service('Messages',function($firebase, People) {
-	var fbRef = new Firebase("https://mather-email.firebaseio.com/msgs/2013/12");       
+	var monthAndDate = moment().format("YYYY/MM")
+	var fbRef = new Firebase("https://mather-email.firebaseio.com/msgs/" + monthAndDate);       
 	var loaded = false;	
 	var fb = $firebase(fbRef);
 	fb.$on("loaded", function(newData) { buildLeaderboard(newData); });

@@ -29,6 +29,7 @@ matherApp.controller('LeaderboardCtrl', function ($scope, Messages, People) {
 
   $scope.loadingMsgs = !Messages.isLoaded();
   $scope.$watch(Messages.isLoaded, function(newVal, oldVal) { $scope.loadingMsgs = !newVal; });
+  $scope.hideEdit = false;
   
   // create arrays of 3
   //$scope.board = [];
@@ -54,6 +55,7 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Messages, Peo
 	$scope.msgs = Messages.get();
 	$scope.board = People.get();
 	$scope.p = $scope.board[$scope.pId];
+	$scope.hideEdit = true;
 
 	$scope.newImage = function() {
 

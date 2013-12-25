@@ -2,13 +2,20 @@
 
 <div class="panel panel-primary">
 	<div class="panel-heading h3">
-		<span class="label label-info">#&nbsp;{{p.rank}}</span>
+		<div class="row">
+			<div class="col-xs-2">
+				<span class="label label-info">#&nbsp;{{p.rank}}</span>
+			</div>
+			<div class="col-xs-8"></div>
+			<div class="col-xs-2" style="text-align: right;">
+				<a href="#/p/{{p.email}}"><span data-ng-hide="hideEdit" class="glyphicon glyphicon-edit" style="color: white;"></span></a>
+			</div>
+		</div>
 	</div>
 	<div class="panel-body">
-		
 		<div id="img-carousel-{{p.name}}" class="owl-carousel">
 			<div data-ng-repeat="imgurl in p.url track by $index" owl-init>
-				<a href="#/p/{{p.email}}"><img data-ng-src="{{p.url[$index]}}" alt="picture of you" class="center-block img-thumbnail img-responsive" /></a>
+				<img data-ng-src="{{p.url[$index]}}" alt="picture of you" class="center-block img-thumbnail img-responsive" />
 			</div>
 		</div>
 		

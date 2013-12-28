@@ -14,7 +14,9 @@ matherApp.service("People",function($firebase) {
 		'iboschen@gmail.com' : { mtd: 0, name : 'Ian', url : [] },
 		'rebarber@yahoo.com' : { mtd: 0, name : 'Rich', url : [] },
 		'carson_cohen@yahoo.com' : { mtd : 0, name : 'Carson', url : [] },
-		'joshking@gmail.com' : { mtd: 0, name : 'Josh', url : [] }
+		'joshking@gmail.com' : { mtd: 0, name : 'Josh', url : [] },
+		'josh@warrbo.com' : { mtd: 0, name : 'Warrbo', url : [] },
+		'mph@fanvsfan.com' : { mtd: 0, name : 'Bean', url : [] },		
 	}
 
 	var fbRef = new Firebase("https://mather-email.firebaseio.com/people");       
@@ -86,6 +88,8 @@ matherApp.service('Messages',function($firebase, People, $q) {
 			    
 			    // save email inside object
 			    board[email].email = email;
+			} else {
+				console.log("unaccounted for: " + email);
 			}	  
 		}
 
@@ -104,6 +108,7 @@ matherApp.service('Messages',function($firebase, People, $q) {
 	    	board[p.person].rank = rank++; 
 	    });
 
+	    // in case anyone is waiting on this completing
 	    deferred.resolve();
 	}
 

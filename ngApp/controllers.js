@@ -30,17 +30,31 @@ matherApp.controller('LeaderboardCtrl', function ($scope, Messages, People) {
   $scope.loadingMsgs = !Messages.isLoaded();
   $scope.$watch(Messages.isLoaded, function(newVal, oldVal) { $scope.loadingMsgs = !newVal; });
   $scope.hideEdit = false;
-  
-  // create arrays of 3
-  //$scope.board = [];
-  //var idx = 0;
-  //for (var p in People.get()) {
-  //	if (idx++ % 3 == 0)
-  //		$scope.board.push([]);
- //	$scope.board[$scope.board.length-1].push(People.get()[p]);
-  //}
-  
   $scope.board = People.get();
+
+  var buildGrid = function() {
+    if ($scope.grid)
+      return;
+    
+    $scope.grid = [];
+    var sorted = [];
+    for (var p in $scope.board) {
+      sorted.push($scope.board[p]);
+    }
+    sorted.sort(function(a,b) { 
+      return a.rank - b.rank; 
+    });
+
+    for (var i=0; i<sorted.length; i++) {
+      if (i % 3 == 0)
+        $scope.grid.push([]);
+      $scope.grid[parseInt(i / 3)].push(sorted[i]);
+    }
+  }
+
+  // let's try turning this into an array of arrays, sorted by rank
+  var promise = Messages.wait();
+  promise.then(function() { buildGrid(); });
 
 });
 
@@ -64,22 +78,22 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Messages, Peo
 		if (carousel && carousel.data('owl-carousel')) 
 			carousel.data('owl-carousel').destroy();
 
-	    $scope.p.url.unshift($scope.newUrl);
+    $scope.p.url.unshift($scope.newUrl);
 	    
-	    // re-init
-	    $timeout(function() { 
-	    	carousel.owlCarousel({
-	    		singleItem: true,
-	    		autoPlay: true,
-	    		navigation: true
-	    	});
-	    });
+    // re-init
+    $timeout(function() { 
+    	carousel.owlCarousel({
+    		singleItem: true,
+    		autoPlay: true,
+    		navigation: true
+    	});
+    });
 
-	    // reset input
-	    $scope.newUrl = "";
+    // reset input
+    $scope.newUrl = "";
 
-	    // save in firebase
-	    People.newImage($scope.p.name, $scope.p.url);
+    // save in firebase
+    People.newImage($scope.p.name, $scope.p.url);
 
 	}
 

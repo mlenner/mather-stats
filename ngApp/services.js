@@ -48,21 +48,16 @@ matherApp.service("People",function($firebase) {
  * Messages service - owns the messages, owns the building of the leaderboard, 
  * and the retrieval of the messages from Firebase
  */
-matherApp.service('Messages',function($firebase, People) {
+matherApp.service('Messages',function($firebase, People, $q) {
 	var monthAndDate = moment().format("YYYY/MM")
 	var fbRef = new Firebase("https://mather-email.firebaseio.com/msgs/" + monthAndDate);       
 	var loaded = false;	
 	var fb = $firebase(fbRef);
 	fb.$on("loaded", function(newData) { buildLeaderboard(newData); });
 	fb.$on("loaded", function() { loaded = true; });
-	//fb.$on("change", function() { processChange(); });
 
-	// change - you know what to do
-	//var processChange = function() {
-	//    loaded = false;
-	//    buildLeaderboard(fb);
-	//    loaded = true;
-	//}
+	// see if this works
+	var deferred = $q.defer();
 
 	// build leaderboard
 	var buildLeaderboard = function(newData) {
@@ -108,11 +103,14 @@ matherApp.service('Messages',function($firebase, People) {
 	    }).forEach(function(p) { 
 	    	board[p.person].rank = rank++; 
 	    });
+
+	    deferred.resolve();
 	}
 
 	return {
 		get : function() { return fb; },
-		isLoaded : function() { return loaded; }
+		isLoaded : function() { return loaded; },
+		wait : function() { return deferred.promise; }
 	}
 });
 

@@ -3,7 +3,7 @@
 /*
  * Define the top level module (right now the only module)
  */
-var matherApp = angular.module('matherApp', ['ui.bootstrap', 'ui.bootstrap.modal', 'firebase', 'ngRoute']);
+var matherApp = angular.module('matherApp', ['firebase', 'ngRoute']);
 
 /*
  * Route config

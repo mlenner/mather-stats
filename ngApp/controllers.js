@@ -31,11 +31,12 @@ matherApp.controller('LeaderboardCtrl', function ($scope, Messages, People) {
   $scope.$watch(Messages.isLoaded, function(newVal, oldVal) { $scope.loadingMsgs = !newVal; });
   $scope.hideEdit = false;
   $scope.board = People.get();
+  $scope.currentMonth = moment().format("MMMM YYYY");
 
   var buildGrid = function() {
     if ($scope.grid)
       return;
-    
+
     $scope.grid = [];
     var sorted = [];
     for (var p in $scope.board) {
@@ -61,7 +62,7 @@ matherApp.controller('LeaderboardCtrl', function ($scope, Messages, People) {
 /* 
  * Controller for the person detail view.  Shows thier messages and allows for adding images
  */
-matherApp.controller('PersonCtrl', function ($scope, $routeParams, Messages, People, $timeout) {
+matherApp.controller('PersonCtrl', function ($scope, $routeParams, Messages, People, $timeout, $anchorScroll) {
 
 	$scope.pId = $routeParams.pId;
 	$scope.loading = { details : !Messages.isLoaded() };
@@ -71,23 +72,40 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Messages, Peo
 	$scope.p = $scope.board[$scope.pId];
 	$scope.hideEdit = true;
 
+  // kill the carousel if it exists
+  var carouselKill = function() {
+    var carousel = $('#img-carousel-'+$scope.p.name);
+    if (carousel && carousel.data('owl-carousel')) 
+      carousel.data('owl-carousel').destroy();
+  }
+
+  // carousel init
+  var carouselInit = function() {
+    var carousel = $('#img-carousel-'+$scope.p.name);
+    $timeout(function() { 
+      carousel.owlCarousel({
+        singleItem: true,
+        autoPlay: true,
+        navigation: true
+      });
+    });
+  }
+
+  $scope.removeImg = function(index) {
+    
+    carouselKill();
+    $scope.p.url.splice(index,1);
+    carouselInit();
+
+    // save in firebase
+    People.removeImage(index,$scope.p.name);
+  }
+
 	$scope.newImage = function() {
 
-		// kill the carousel if it exists
-		var carousel = $('#img-carousel-'+$scope.p.name);
-		if (carousel && carousel.data('owl-carousel')) 
-			carousel.data('owl-carousel').destroy();
-
+		carouselKill();
     $scope.p.url.unshift($scope.newUrl);
-	    
-    // re-init
-    $timeout(function() { 
-    	carousel.owlCarousel({
-    		singleItem: true,
-    		autoPlay: true,
-    		navigation: true
-    	});
-    });
+    carouselInit();
 
     // reset input
     $scope.newUrl = "";

@@ -22,10 +22,10 @@ matherApp.service("People",function($firebase) {
 	var fbRef = new Firebase("https://mather-email.firebaseio.com/people");       
 	var loaded = false;	
 	var fb = $firebase(fbRef);
-	fb.$on("loaded", function(newData) { addImages(newData); });
+	fb.$on("loaded", function(newData) { populateImages(newData); });
 	fb.$on("loaded", function() { loaded = true; });
 
-	var addImages = function(newData) {
+	var populateImages = function(newData) {
 		var index = fb.$getIndex();
 		var data = newData;
 
@@ -42,7 +42,12 @@ matherApp.service("People",function($firebase) {
 		newImage : function(name, url) {
 			var child = fb.$child(name);
 		 	child.$set([url]);
-	  }
+	  	},
+	  	removeImage : function(index,name) {
+	  		var urls = fb[name][0];
+    		urls.splice(index,1);
+    		fb.$save();
+	  	}
 	}
 });
 

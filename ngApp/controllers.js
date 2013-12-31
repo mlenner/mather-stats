@@ -72,6 +72,8 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Messages, Peo
 	$scope.p = $scope.board[$scope.pId];
 	$scope.hideEdit = true;
 
+  $anchorScroll();
+
   // kill the carousel if it exists
   var carouselKill = function() {
     var carousel = $('#img-carousel-'+$scope.p.name);

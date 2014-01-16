@@ -3,20 +3,20 @@
  */
 matherApp.service("People",function($firebase) {
 	var board = {
-		'mike.lenner@gmail.com' : { mtd : 0, name: 'Mike', url : [] },
-		'jonericschwartz@gmail.com' : { mtd : 0, name : 'Jon', url : [] },
-		'cretian@aol.com' : { mtd: 0, name : 'Dennis', url : [] },
-		'bilello@gmail.com' : { mtd: 0, name : 'Charlie', url : [] },
-		'robjwald@gmail.com' : { mtd: 0, name : 'Rob', url : []},
-		'citisncain@aol.com' : { mtd : 0, name : 'Israel', url : [] },
-		'jgamils@gmail.com' : { mtd : 0, name : 'Jeff', url : [] },
-		'mickymcpartland@yahoo.com' : { mtd: 0, name : 'Micky', url : [] },
-		'iboschen@gmail.com' : { mtd: 0, name : 'Ian', url : [] },
-		'rebarber@yahoo.com' : { mtd: 0, name : 'Rich', url : [] },
-		'carson_cohen@yahoo.com' : { mtd : 0, name : 'Carson', url : [] },
-		'joshking@gmail.com' : { mtd: 0, name : 'Josh', url : [] },
-		'josh@warrbo.com' : { mtd: 0, name : 'Warrbo', url : [] },
-		'mph@fanvsfan.com' : { mtd: 0, name : 'Bean', url : [] },		
+		'mike.lenner@gmail.com' : { email : "mike.lenner@gmail.com", mtd : 0, name: 'Mike', url : [] },
+		'jonericschwartz@gmail.com' : { email : "jonericschwartz@gmail.com", mtd : 0, name : 'Jon', url : [] },
+		'cretian@aol.com' : { email : "cretian@aol.com", mtd: 0, name : 'Dennis', url : [] },
+		'bilello@gmail.com' : { email : "bilello@gmail.com", mtd: 0, name : 'Charlie', url : [] },
+		'robjwald@gmail.com' : { email : "robjwald@gmail.com", mtd: 0, name : 'Rob', url : []},
+		'citisncain@aol.com' : { email : "citisncain@aol.com", mtd : 0, name : 'Israel', url : [] },
+		'jgamils@gmail.com' : { email : "jgamils@gmail.com", mtd : 0, name : 'Jeff', url : [] },
+		'mickymcpartland@yahoo.com' : { email : "mickymcpartland@yahoo.com", mtd: 0, name : 'Micky', url : [] },
+		'iboschen@gmail.com' : { email : "iboschen@gmail.com", mtd: 0, name : 'Ian', url : [] },
+		'rebarber@yahoo.com' : { email : "rebarber@yahoo.com", mtd: 0, name : 'Rich', url : [] },
+		'carson_cohen@yahoo.com' : { email : "carson_cohen@yahoo.com", mtd : 0, name : 'Carson', url : [] },
+		'joshking@gmail.com' : { email : "joshking@gmail.com", mtd: 0, name : 'Josh', url : [] },
+		'josh@warrbo.com' : { email : "josh@warrbo.com", mtd: 0, name : 'Warrbo', url : [] },
+		'mph@fanvsfan.com' : { email : "mph@fanvsfan.com", mtd: 0, name : 'Bean', url : [] }		
 	}
 
 	var fbRef = new Firebase("https://mather-email.firebaseio.com/people");       
@@ -78,7 +78,7 @@ matherApp.service('Messages',function($firebase, People, $q) {
 
 			// pull out name from message
 			var email = data[index[i]].email;
-			
+
 			if (board[email]) { 
 			    // increment MTD count
 			    board[email].mtd++; 

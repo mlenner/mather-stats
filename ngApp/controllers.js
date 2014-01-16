@@ -3,7 +3,7 @@
 /*
  * Define the top level module (right now the only module)
  */
-var matherApp = angular.module('matherApp', ['firebase', 'ngRoute']);
+var matherApp = angular.module('matherApp', ['firebase', 'ngRoute', 'highcharts-ng']);
 
 /*
  * Route config
@@ -18,9 +18,26 @@ matherApp.config(['$routeProvider',
       when('/p/:pId', {
         templateUrl: 'person.html',
 	     controller: 'PersonCtrl'
+      }).
+      when('/charts', {
+        templateUrl: 'charts.html',
+        controller: 'ChartsCtrl'
       });
   }
 ]);
+
+/*
+ * GA
+*/
+matherApp.run(["$rootScope", "$location", 
+  function ($rootScope, $location) {
+    $rootScope.$on("$routeChangeSuccess", function() {
+      ga('set', 'page', $location.path());
+      ga('send', 'pageview', $location.path());
+    });
+  }
+]);
+
 
 /* 
  * Controller for the leaderboard view.  Shows the ranked leaderboard with everyone's states
@@ -120,6 +137,63 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Messages, Peo
 });
 
 /*
- * Is this a hack?
+ * Charts Controller
  */
+ matherApp.controller('ChartsCtrl', function ($scope, $routeParams, Messages) {
+
+  var populateChartConfig = function(msgRef) {
+
+    // create a hash map where the keys are emails and values are arrays of msg count
+    // { mike: [4,0,0,1], jon: [1,2], etc... }
+
+    // for each message, ID the email
+
+    // do we have an email in the hash?  if not, create it
+
+    // pull the date of the message
+
+    // is there an element at that day of month-1 index?  if so, increment it
+
+    // if not, extend the array to this element, adding zero's if necessary, setting this value to 1
+
+    // return an array of objects of that map, where the key is "name:" and the values are "data:"
+
+    var days = [];
+    var index = msgRef.$getIndex();
+    for (var i=0; i < index.length; i++) {    
+      var msg = msgRef[index[i]];
+      var date = Date.parse(msg.date.split(" at")[0]);
+      var email = msg.email;
+
+
+
+    }
+
+  };
+  
+  $scope.chartConfig = {
+        options: {
+            chart: {
+                type: 'column'
+            }
+        },
+        xAxis: {
+          categories: ['Apples', 'Bananas', 'Oranges']
+        },
+        series: [
+          {name: 'Mike', data: [0,1,0]}, 
+          {name: 'Micky', data: [3,2,4]}
+        ],
+        title: {
+            text: 'Messages By Day'
+        },
+        yAxis: {
+            title: {
+                text: 'Messages'
+            }
+        },
+        loading: false
+    }
+
+ });
  

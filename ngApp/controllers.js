@@ -27,17 +27,17 @@ matherApp.config(['$routeProvider',
 ]);
 
 /*
- * GA
+ * Initialize google analytics - send page views on route changes and set the page
+ * names to correspond to the just the path
 */
-matherApp.run(["$rootScope", "$location", 
+matherApp.run(['$rootScope', '$location', 
   function ($rootScope, $location) {
-    $rootScope.$on("$routeChangeSuccess", function() {
+    $rootScope.$on('$routeChangeSuccess', function() {
       ga('set', 'page', $location.path());
       ga('send', 'pageview', $location.path());
     });
   }
 ]);
-
 
 /* 
  * Controller for the leaderboard view.  Shows the ranked leaderboard with everyone's states

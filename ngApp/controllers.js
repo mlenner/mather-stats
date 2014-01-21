@@ -139,61 +139,40 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Messages, Peo
 /*
  * Charts Controller
  */
- matherApp.controller('ChartsCtrl', function ($scope, $routeParams, Messages) {
+ matherApp.controller('ChartsCtrl', function ($scope, $routeParams, Messages, People) {
 
-  var populateChartConfig = function(msgRef) {
-
-    // create a hash map where the keys are emails and values are arrays of msg count
-    // { mike: [4,0,0,1], jon: [1,2], etc... }
-
-    // for each message, ID the email
-
-    // do we have an email in the hash?  if not, create it
-
-    // pull the date of the message
-
-    // is there an element at that day of month-1 index?  if so, increment it
-
-    // if not, extend the array to this element, adding zero's if necessary, setting this value to 1
-
-    // return an array of objects of that map, where the key is "name:" and the values are "data:"
-
-    var days = [];
-    var index = msgRef.$getIndex();
-    for (var i=0; i < index.length; i++) {    
-      var msg = msgRef[index[i]];
-      var date = Date.parse(msg.date.split(" at")[0]);
-      var email = msg.email;
-
-
-
-    }
-
-  };
   
-  $scope.chartConfig = {
+  // the base config for the messages by person
+  $scope.pieConfig = {
         options: {
             chart: {
-                type: 'column'
+                type: 'pie'
             }
         },
-        xAxis: {
-          categories: ['Apples', 'Bananas', 'Oranges']
-        },
-        series: [
-          {name: 'Mike', data: [0,1,0]}, 
-          {name: 'Micky', data: [3,2,4]}
-        ],
+        series: [{
+          type: 'pie'
+        }],
         title: {
-            text: 'Messages By Day'
+            text: 'Messages By Person'
         },
-        yAxis: {
-            title: {
-                text: 'Messages'
-            }
-        },
-        loading: false
+        loading: true
     }
+
+    // build the pie chart with data
+    var buildPie = function(board) {
+      var dataSeries = [];
+      for (var p in board) {
+        dataSeries.push({name: board[p].name, y: board[p].mtd});
+        if (board[p].rank == 1)
+          dataSeries[dataSeries.length-1].sliced = true;
+      }
+      $scope.pieConfig.loading = false;
+      $scope.pieConfig.series.push({data: dataSeries});
+    }
+
+    // update all charts with data
+    var promise = Messages.wait();
+    promise.then(function() { buildPie(People.get()); });
 
  });
  

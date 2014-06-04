@@ -101,7 +101,8 @@ matherApp.service('Messages',function($firebase, People, $q) {
 		// days from 1st of the month
 		var dayOfMonth = moment().get('day');
 
-	    // sort to define ranks.  also add each person's email address to their record
+	    // sort to define ranks.  also add each person's email address to their record.  
+	    // also - learn how to do this such that it's not ridiculous
 	    for (var p in board) {
 	    	board[p].person = p;
 	    	sorted.push(board[p]);

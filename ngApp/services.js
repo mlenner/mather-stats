@@ -19,7 +19,7 @@ matherApp.service("People",function($firebase) {
 		'mph@fanvsfan.com' : { email : "mph@fanvsfan.com", mtd: 0, name : 'Bean', url : [] }		
 	}
 
-	var fbRef = new Firebase("https://xxxxxxxxxxxxxxxxxxxxxxxxx");       
+	var fbRef = new Firebase("https://mather-email.firebaseio.com/people");
 	var loaded = false;	
 	var fb = $firebase(fbRef);
 	fb.$on("loaded", function(newData) { populateImages(newData); });

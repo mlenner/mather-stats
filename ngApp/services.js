@@ -1,7 +1,4 @@
-/*
- * People service.  Owns the list of people and communications with Firebase to retrieve images per person.
- */
-matherApp.service("People",function($firebase) {
+matherApp.service("Board", function(People, Messages, $q) {
 	var board = {
 		'mike.lenner@gmail.com' : { email : "mike.lenner@gmail.com", mtd : 0, name: 'Mike', url : [] },
 		'jonericschwartz@gmail.com' : { email : "jonericschwartz@gmail.com", mtd : 0, name : 'Jon', url : [] },
@@ -19,15 +16,50 @@ matherApp.service("People",function($firebase) {
 		'mph@fanvsfan.com' : { email : "mph@fanvsfan.com", mtd: 0, name : 'Bean', url : [] }		
 	}
 
+	var deferred = $q.defer();
+
+	// first load people
+	People.wait()
+		.then( function() { People.populateBoard( board )})
+
+		// next load the messages for those people
+		.then( Messages.wait()
+			.then( function() { Messages.populateBoard( board )})
+
+			// finally, resolve the promise with the fully built board
+			.then( function() { deferred.resolve( board )})
+		);
+
+	
+
+	return {
+		wait : function() { 
+			return deferred.promise;
+		}
+	}
+});
+
+
+/*
+ * People service.  Owns the list of people and communications with Firebase to retrieve images per person.
+ */
+matherApp.service("People",function($firebase, $q) {
+	
 	var fbRef = new Firebase("https://mather-email.firebaseio.com/people");
 	var loaded = false;	
+	
+	var deffered = $q.defer();
 	var fb = $firebase(fbRef);
-	fb.$on("loaded", function(newData) { populateImages(newData); });
-	fb.$on("loaded", function() { loaded = true; });
+	//fb.$on("loaded", function(newData) { populateImages(newData); });
+	
+	fb.$on("loaded", function() { 
+		loaded = true; 
+		deffered.resolve();
+	});
 
-	var populateImages = function(newData) {
-		var index = fb.$getIndex();
-		var data = newData;
+	var populateImages = function(board) {
+		var data = fb;
+		console.log( "data in populate images: " + data );
 
 		for (var p in board) {
 			var name = board[p].name;
@@ -37,7 +69,8 @@ matherApp.service("People",function($firebase) {
 	}
 
 	return {
-		get      : function() { return board; },
+		get      : function() { return fb; },
+		wait 	 : function() { return deffered.promise; },
 		isLoaded : function() { return loaded; },
 		newImage : function(name, url) {
 			var child = fb.$child(name);
@@ -47,6 +80,12 @@ matherApp.service("People",function($firebase) {
 	  		var urls = fb[name][0];
     		urls.splice(index,1);
     		fb.$save();
+	  	},
+	  	populateBoard : function(board) {
+	  		// eventually will also drive which people are in the board
+	  		//populatePeople( board );
+	  		// for now, just images
+	  		populateImages( board );
 	  	}
 	}
 });
@@ -55,23 +94,25 @@ matherApp.service("People",function($firebase) {
  * Messages service - owns the messages, owns the building of the leaderboard, 
  * and the retrieval of the messages from Firebase
  */
-matherApp.service('Messages',function($firebase, People, $q) {
+matherApp.service('Messages',function($firebase, $q) {
 	var monthAndDate = moment().format("YYYY/MM")
 	var fbRef = new Firebase("https://mather-email.firebaseio.com/msgs/" + monthAndDate);       
 	var loaded = false;	
-	var fb = $firebase(fbRef);
-	fb.$on("loaded", function(newData) { buildLeaderboard(newData); });
-	fb.$on("loaded", function() { loaded = true; });
-
-	// see if this works
 	var deferred = $q.defer();
 
+	var fb = $firebase(fbRef);
+	fb.$on("loaded", function() { 
+		loaded = true; 
+		console.log( "firebase data loaded" );
+		deferred.resolve();
+	});
+
 	// build leaderboard
-	var buildLeaderboard = function(newData) {
+	var buildLeaderboard = function(board) {
 		var index = fb.$getIndex();
-		var data = newData;
+		var data = fb; 
+		console.log( "data in buildLeaderboard: " + data );
 		var sorted = [];
-		var board = People.get();
 		var dayOfMonth = moment().format('DD');
 
 		for (var i=0; i < index.length; i++) {	  
@@ -109,16 +150,15 @@ matherApp.service('Messages',function($firebase, People, $q) {
 	    	return b.mtd - a.mtd; 
 	    }).forEach(function(p) { 
 	    	board[p.person].rank = rank++; 
+	    	console.log ("set " + p.person + " to " + board[p.person].rank );
 	    });
-
-	    // in case anyone is waiting on this completing
-	    deferred.resolve();
 	}
 
 	return {
 		get : function() { return fb; },
 		isLoaded : function() { return loaded; },
-		wait : function() { return deferred.promise; }
+		wait : function() { return deferred.promise; },
+		populateBoard : function( board ) { buildLeaderboard( board ); }
 	}
 });
 

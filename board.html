@@ -3,8 +3,8 @@
     	<div class="page-header" style="margin-top:10px;">
             <h1 class="col-xs-12 text-primary"><a href="#/">Mather Leaderboard</a> <small><span id="current-my">{{currentMonth}}</span></small></h1>
     	</div>
-		<loading data-ng-show="loadingMsgs"></loading>	
-		<div class="row" data-ng-hide="loadingMsgs" id="board">
+		<loading data-ng-show="buildingGrid"></loading>	
+		<div class="row" data-ng-hide="buildingGrid" id="board">
 			<div class="container">
 	    		<div class="row" data-ng-repeat="row in grid">
 		    		<div class="col-xs-12 col-md-4 board-tile" data-ng-repeat="p in row">

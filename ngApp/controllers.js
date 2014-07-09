@@ -42,17 +42,20 @@ matherApp.run(['$rootScope', '$location',
 /* 
  * Controller for the leaderboard view.  Shows the ranked leaderboard with everyone's states
  */
-matherApp.controller('LeaderboardCtrl', function ($scope, Messages, People) {
+matherApp.controller('LeaderboardCtrl', function ($scope, Board) {
 
-  $scope.loadingMsgs = !Messages.isLoaded();
-  $scope.$watch(Messages.isLoaded, function(newVal, oldVal) { $scope.loadingMsgs = !newVal; });
   $scope.hideEdit = false;
-  $scope.board = People.get();
   $scope.currentMonth = moment().format("MMMM YYYY");
+  $scope.buildingGrid = true;
 
+  Board.wait().then( function( board ) {
+    $scope.board = board;
+    buildGrid();
+  });
+
+  // 2D array to create my 3x3 rows
   var buildGrid = function() {
-    if ($scope.grid)
-      return;
+    $scope.buildingGrid = true;
 
     $scope.grid = [];
     var sorted = [];
@@ -67,28 +70,29 @@ matherApp.controller('LeaderboardCtrl', function ($scope, Messages, People) {
       if (i % 3 == 0)
         $scope.grid.push([]);
       $scope.grid[parseInt(i / 3)].push(sorted[i]);
+      console.log( "in grid: " + sorted[i].name + ", " + sorted[i].rank );
     }
+
+    $scope.buildingGrid = false;
   }
-
-  // let's try turning this into an array of arrays, sorted by rank
-  var promise = Messages.wait();
-  promise.then(function() { buildGrid(); });
-
+  
 });
 
 /* 
  * Controller for the person detail view.  Shows thier messages and allows for adding images
  */
-matherApp.controller('PersonCtrl', function ($scope, $routeParams, Messages, People, $timeout, $anchorScroll) {
-
+matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, People, Messages, $anchorScroll) {
 	$scope.pId = $routeParams.pId;
-	$scope.loading = { details : !Messages.isLoaded() };
-	$scope.$watch(Messages.isLoaded, function(newVal, oldVal) { $scope.loading.details = !newVal; });
-	$scope.msgs = Messages.get();
-	$scope.board = People.get();
-	$scope.p = $scope.board[$scope.pId];
-	$scope.hideEdit = true;
+  $scope.hideEdit = true;
+  $scope.loading = { details : true };
+  $scope.msgs = Messages.get(); 
 
+  Board.wait().then( function( board ) {
+    $scope.board = board;
+    $scope.p = $scope.board[$scope.pId];
+    $scope.loading = { details : false };
+  });
+	
   $anchorScroll();
 
   // kill the carousel if it exists
@@ -111,27 +115,21 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Messages, Peo
   }
 
   $scope.removeImg = function(index) {
-    
     carouselKill();
     $scope.p.url.splice(index,1);
     carouselInit();
-
     // save in firebase
     People.removeImage(index,$scope.p.name);
   }
 
 	$scope.newImage = function() {
-
 		carouselKill();
     $scope.p.url.unshift($scope.newUrl);
     carouselInit();
-
     // reset input
     $scope.newUrl = "";
-
     // save in firebase
     People.newImage($scope.p.name, $scope.p.url);
-
 	}
 
 });

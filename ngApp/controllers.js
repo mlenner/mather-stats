@@ -42,7 +42,7 @@ matherApp.run(['$rootScope', '$location',
 /* 
  * Controller for the leaderboard view.  Shows the ranked leaderboard with everyone's states
  */
-matherApp.controller('LeaderboardCtrl', function ($scope, Board) {
+matherApp.controller('LeaderboardCtrl', function ($scope, Board, Messages) {
 
   $scope.hideEdit = false;
   $scope.currentMonth = moment().format("MMMM YYYY");
@@ -51,6 +51,7 @@ matherApp.controller('LeaderboardCtrl', function ($scope, Board) {
   Board.wait().then( function( board ) {
     $scope.board = board;
     buildGrid();
+    Board.setChangeListener( buildGrid );
   });
 
   // 2D array to create my 3x3 rows

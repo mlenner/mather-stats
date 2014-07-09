@@ -16,6 +16,9 @@ matherApp.service("Board", function(People, Messages, $q) {
 		'mph@fanvsfan.com' : { email : "mph@fanvsfan.com", mtd: 0, name : 'Bean', url : [] }		
 	}
 
+	// function that can be set to act as callback when a change is detected 
+	var changeListener;
+
 	var deferred = $q.defer();
 
 	// first load people
@@ -26,15 +29,24 @@ matherApp.service("Board", function(People, Messages, $q) {
 		.then( Messages.wait()
 			.then( function() { Messages.populateBoard( board )})
 
+			// add listener to Messages now that data is loaded
+			.then( function() { 
+				Messages.listenForChange( function() {
+					Messages.populateBoard( board );
+					if ( changeListener ) { changeListener(); }
+				});
+			})
+
 			// finally, resolve the promise with the fully built board
 			.then( function() { deferred.resolve( board )})
 		);
 
-	
-
 	return {
 		wait : function() { 
 			return deferred.promise;
+		},
+		setChangeListener : function( listener ) {
+			changeListener = listener;
 		}
 	}
 });
@@ -50,7 +62,6 @@ matherApp.service("People",function($firebase, $q) {
 	
 	var deffered = $q.defer();
 	var fb = $firebase(fbRef);
-	//fb.$on("loaded", function(newData) { populateImages(newData); });
 	
 	fb.$on("loaded", function() { 
 		loaded = true; 
@@ -86,7 +97,7 @@ matherApp.service("People",function($firebase, $q) {
 	  		//populatePeople( board );
 	  		// for now, just images
 	  		populateImages( board );
-	  	}
+	  	},
 	}
 });
 
@@ -103,15 +114,21 @@ matherApp.service('Messages',function($firebase, $q) {
 	var fb = $firebase(fbRef);
 	fb.$on("loaded", function() { 
 		loaded = true; 
-		console.log( "firebase data loaded" );
 		deferred.resolve();
 	});
 
 	// build leaderboard
-	var buildLeaderboard = function(board) {
+	var buildLeaderboard = function( board ) {
+		
+		// clear the board in case this is a rebuild
+		for ( var p in board ) {
+			board[p].mtd = 0;
+			board[p].latestDate = undefined;
+			board[p].perDay = undefined;
+		}
+
 		var index = fb.$getIndex();
 		var data = fb; 
-		console.log( "data in buildLeaderboard: " + data );
 		var sorted = [];
 		var dayOfMonth = moment().format('DD');
 
@@ -150,7 +167,6 @@ matherApp.service('Messages',function($firebase, $q) {
 	    	return b.mtd - a.mtd; 
 	    }).forEach(function(p) { 
 	    	board[p.person].rank = rank++; 
-	    	console.log ("set " + p.person + " to " + board[p.person].rank );
 	    });
 	}
 
@@ -158,7 +174,11 @@ matherApp.service('Messages',function($firebase, $q) {
 		get : function() { return fb; },
 		isLoaded : function() { return loaded; },
 		wait : function() { return deferred.promise; },
-		populateBoard : function( board ) { buildLeaderboard( board ); }
+		populateBoard : function( board ) { buildLeaderboard( board ); },
+		listenForChange : function( listener ) {
+			fb.$off( "change" ); // this is a hack - means we can only ever have one listener
+			fb.$on("change", listener );
+		}
 	}
 });
 

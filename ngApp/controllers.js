@@ -71,7 +71,6 @@ matherApp.controller('LeaderboardCtrl', function ($scope, Board, Messages) {
       if (i % 3 == 0)
         $scope.grid.push([]);
       $scope.grid[parseInt(i / 3)].push(sorted[i]);
-      console.log( "in grid: " + sorted[i].name + ", " + sorted[i].rank );
     }
 
     $scope.buildingGrid = false;

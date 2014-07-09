@@ -70,8 +70,7 @@ matherApp.service("People",function($firebase, $q) {
 
 	var populateImages = function(board) {
 		var data = fb;
-		console.log( "data in populate images: " + data );
-
+		
 		for (var p in board) {
 			var name = board[p].name;
 			if (data && data[name]) 

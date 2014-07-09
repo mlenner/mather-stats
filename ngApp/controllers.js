@@ -17,7 +17,7 @@ matherApp.config(['$routeProvider',
       }).
       when('/p/:pId', {
         templateUrl: 'person.html',
-	     controller: 'PersonCtrl'
+	      controller: 'PersonCtrl'
       }).
       when('/charts', {
         templateUrl: 'charts.html',

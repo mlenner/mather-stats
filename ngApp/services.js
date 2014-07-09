@@ -19,30 +19,37 @@ matherApp.service("Board", function(People, Messages, $q) {
 	// function that can be set to act as callback when a change is detected 
 	var changeListener;
 
-	var deferred = $q.defer();
+	var loadData = function( monthAndDate, promise ) {
 
-	// first load people
-	People.wait()
-		.then( function() { People.populateBoard( board )})
+		// default to current month and date
+		if (!monthAndDate) { monthAndDate = moment().format("YYYY/MM"); }
 
-		// next load the messages for those people
-		.then( Messages.wait()
-			.then( function() { Messages.populateBoard( board )})
+		// first load people
+		People.wait()
+			.then( function() { People.populateBoard( board )})
 
-			// add listener to Messages now that data is loaded
-			.then( function() { 
-				Messages.listenForChange( function() {
-					Messages.populateBoard( board );
-					if ( changeListener ) { changeListener(); }
-				});
-			})
+			// next load the messages for those people
+			.then( Messages.wait( monthAndDate )
+				.then( function() { Messages.populateBoard( board )})
 
-			// finally, resolve the promise with the fully built board
-			.then( function() { deferred.resolve( board )})
-		);
+				// add listener to Messages now that data is loaded
+				.then( function() { 
+					Messages.listenForChange( function() {
+						Messages.populateBoard( board );
+						if ( changeListener ) { changeListener(); }
+					});
+				})
+
+				// finally, resolve the promise with the fully built board
+				.then( function() { promise.resolve( board )})
+			);
+
+	}
 
 	return {
-		wait : function() { 
+		wait : function( monthAndDate ) { 
+			var deferred = $q.defer();
+			loadData( monthAndDate, deferred );
 			return deferred.promise;
 		},
 		setChangeListener : function( listener ) {
@@ -70,7 +77,6 @@ matherApp.service("People",function($firebase, $q) {
 
 	var populateImages = function(board) {
 		var data = fb;
-		
 		for (var p in board) {
 			var name = board[p].name;
 			if (data && data[name]) 
@@ -105,16 +111,25 @@ matherApp.service("People",function($firebase, $q) {
  * and the retrieval of the messages from Firebase
  */
 matherApp.service('Messages',function($firebase, $q) {
-	var monthAndDate = moment().format("YYYY/MM")
-	var fbRef = new Firebase("https://mather-email.firebaseio.com/msgs/" + monthAndDate);       
 	var loaded = false;	
-	var deferred = $q.defer();
+	var loadedMonthAndDate;
+	var msgs = {};
+	
+	var loadData = function( monthAndDate, promise ) {
+		if ( loaded && ( monthAndDate == loadedMonthAndDate )) {
+			promise.resolve();
+			return;
+		}
 
-	var fb = $firebase(fbRef);
-	fb.$on("loaded", function() { 
-		loaded = true; 
-		deferred.resolve();
-	});
+		loaded = false;
+		var fbRef = new Firebase("https://mather-email.firebaseio.com/msgs/" + monthAndDate);       
+		msgs = $firebase(fbRef);
+		msgs.$on("loaded", function() { 
+			loaded = true; 
+			loadedMonthAndDate = monthAndDate;
+			promise.resolve();
+		});
+	}
 
 	// build leaderboard
 	var buildLeaderboard = function( board ) {
@@ -126,8 +141,8 @@ matherApp.service('Messages',function($firebase, $q) {
 			board[p].perDay = undefined;
 		}
 
-		var index = fb.$getIndex();
-		var data = fb; 
+		var index = msgs.$getIndex();
+		var data = msgs; 
 		var sorted = [];
 		var dayOfMonth = moment().format('DD');
 
@@ -170,13 +185,17 @@ matherApp.service('Messages',function($firebase, $q) {
 	}
 
 	return {
-		get : function() { return fb; },
+		get : function() { return msgs; },
 		isLoaded : function() { return loaded; },
-		wait : function() { return deferred.promise; },
+		wait : function( monthAndDate ) { 
+			var deferred = $q.defer();
+			loadData( monthAndDate, deferred );
+			return deferred.promise; 
+		},
 		populateBoard : function( board ) { buildLeaderboard( board ); },
 		listenForChange : function( listener ) {
-			fb.$off( "change" ); // this is a hack - means we can only ever have one listener
-			fb.$on("change", listener );
+			msgs.$off( "change" ); // this is a hack - means we can only ever have one listener
+			msgs.$on("change", listener );
 		}
 	}
 });

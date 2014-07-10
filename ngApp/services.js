@@ -144,7 +144,10 @@ matherApp.service('Messages',function($firebase, $q) {
 		var index = msgs.$getIndex();
 		var data = msgs; 
 		var sorted = [];
-		var dayOfMonth = moment().format('DD');
+		var loadedMonth = loadedMonthAndDate.substring( 5 );
+		var dayOfMonth = loadedMonth === moment().format('MM')
+			? moment().format('DD') // today
+			: moment().set('month', loadedMonth-1 ).endOf('month').format('DD'); // last day of that month
 
 		for (var i=0; i < index.length; i++) {	  
 

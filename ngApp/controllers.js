@@ -42,13 +42,15 @@ matherApp.run(['$rootScope', '$location',
 /* 
  * Controller for the leaderboard view.  Shows the ranked leaderboard with everyone's states
  */
-matherApp.controller('LeaderboardCtrl', function ($scope, Board, Messages) {
+matherApp.controller('LeaderboardCtrl', function ($scope, Board, Messages, $location) {
 
   $scope.hideEdit = false;
-  $scope.currentMonth = moment().format("MMMM YYYY");
+  $scope.monthAndYear = $location.search().d 
+    ? moment( $location.search().d, "MMYY" ) 
+    : moment();
   $scope.buildingGrid = true;
 
-  Board.wait().then( function( board ) {
+  Board.wait( $scope.monthAndYear.format( "YYYY/MM" )).then( function( board ) {
     $scope.board = board;
     buildGrid();
     Board.setChangeListener( buildGrid );
@@ -81,15 +83,15 @@ matherApp.controller('LeaderboardCtrl', function ($scope, Board, Messages) {
 /* 
  * Controller for the person detail view.  Shows thier messages and allows for adding images
  */
-matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, People, Messages, $anchorScroll) {
+matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, People, Messages, $anchorScroll, $timeout) {
 	$scope.pId = $routeParams.pId;
   $scope.hideEdit = true;
   $scope.loading = { details : true };
-  $scope.msgs = Messages.get(); 
 
   Board.wait().then( function( board ) {
     $scope.board = board;
     $scope.p = $scope.board[$scope.pId];
+    $scope.msgs = Messages.get(); 
     $scope.loading = { details : false };
   });
 	

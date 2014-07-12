@@ -3,7 +3,7 @@
 /*
  * Define the top level module (right now the only module)
  */
-var matherApp = angular.module('matherApp', ['firebase', 'ngRoute', 'highcharts-ng']);
+var matherApp = angular.module('matherApp', ['firebase', 'ngRoute', 'highcharts-ng', 'ui.bootstrap']);
 
 /*
  * Route config
@@ -27,34 +27,28 @@ matherApp.config(['$routeProvider',
 ]);
 
 /*
- * Initialize google analytics - send page views on route changes and set the page
- * names to correspond to the just the path
-*/
-matherApp.run(['$rootScope', '$location', 
-  function ($rootScope, $location) {
+ * Initial application setup
+ */
+matherApp.run(['$rootScope', '$location', '$templateCache', function ($rootScope, $location, $templateCache) {
+    
+    // Initialize google analytics - send page views on route changes and set the page
+    // names to correspond to the just the path
     $rootScope.$on('$routeChangeSuccess', function() {
       ga('set', 'page', $location.path());
       ga('send', 'pageview', $location.path());
     });
+
   }
 ]);
 
 /* 
  * Controller for the leaderboard view.  Shows the ranked leaderboard with everyone's states
  */
-matherApp.controller('LeaderboardCtrl', function ($scope, Board, Messages, $location) {
+matherApp.controller('LeaderboardCtrl', function ($scope, Board, MonthAndYear) {
 
   $scope.hideEdit = false;
-  $scope.monthAndYear = $location.search().d 
-    ? moment( $location.search().d, "MMYY" ) 
-    : moment();
+  $scope.monthAndYear = MonthAndYear.get();
   $scope.buildingGrid = true;
-
-  Board.wait( $scope.monthAndYear.format( "YYYY/MM" )).then( function( board ) {
-    $scope.board = board;
-    buildGrid();
-    Board.setChangeListener( buildGrid );
-  });
 
   // 2D array to create my 3x3 rows
   var buildGrid = function() {
@@ -77,18 +71,25 @@ matherApp.controller('LeaderboardCtrl', function ($scope, Board, Messages, $loca
 
     $scope.buildingGrid = false;
   }
+
+  Board.init( $scope.monthAndYear.current.format( "YYYY/MM" )).then( function( board ) {
+    $scope.board = board;
+    buildGrid();
+    Board.setChangeListener( buildGrid );
+    Board.setReloadListener( function() { $scope.buildingGrid = true; });
+  });
   
 });
 
 /* 
  * Controller for the person detail view.  Shows thier messages and allows for adding images
  */
-matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, People, Messages, $anchorScroll, $timeout) {
+matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, Messages, $anchorScroll, $timeout, MonthAndYear) {
 	$scope.pId = $routeParams.pId;
   $scope.hideEdit = true;
   $scope.loading = { details : true };
 
-  Board.wait().then( function( board ) {
+  Board.init( MonthAndYear.get().current.format("YYYY/MM") ).then( function( board ) {
     $scope.board = board;
     $scope.p = $scope.board[$scope.pId];
     $scope.msgs = Messages.get(); 
@@ -137,6 +138,62 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, People
 });
 
 /*
+ * For selecting dates to change the stats / leaderboard
+ */
+matherApp.controller('DatepickerCtrl', function ($scope, $modal, MonthAndYear) {
+  
+  $scope.dateChange = {
+    year : $scope.monthAndYear.current.format("YYYY"),
+    month : $scope.monthAndYear.current.format("MM")
+  };
+
+  $scope.showModal = function() {
+    var mi = $modal.open({
+      template: 
+      "    <h3 class=\"popover-title\"><strong>Change Date</strong></h3>\n" +
+      "    <div class=\"popover-content\">\n" +
+      "      <span>Update to see leaderboard stats for any month and year.</span>\n" +
+      "    </div>\n" +
+      "    <div class=\"popover-content\">\n" +
+      "      <form role=\"form\">\n" + 
+      "        <div class=\"form-group\">\n" + 
+      "            <select class=\"form-control\" ng-model=\"dateChange.month\">\n" +
+      "                <option value=\"01\">Janurary</option>\n" +
+      "                <option value=\"02\">February</option>\n" +
+      "                <option value=\"03\">March</option>\n" +
+      "                <option value=\"04\">April</option>\n" +
+      "                <option value=\"05\">May</option>\n" +
+      "                <option value=\"06\">June</option>\n" +
+      "                <option value=\"07\">July</option>\n" +
+      "                <option value=\"08\">August</option>\n" +
+      "                <option value=\"09\">September</option>\n" +
+      "                <option value=\"10\">October</option>\n" +
+      "                <option value=\"11\">November</option>\n" +
+      "                <option value=\"12\">December</option>\n" +
+      "            </select>\n" + 
+      "            <select class=\"form-control\" ng-model=\"dateChange.year\">\n" +
+      "                <option value=\"2014\">2014</option>\n" +
+      "                <option value=\"2013\">2013</option>\n" +
+      "            </select>\n" +
+      "        </div>\n" +
+      "        <div class=\"form-group\">\n" +  
+      "            <button type=\"button\" class=\"btn btn-primary\" ng-click=\"$close(dateChange)\">OK</button>\n" +
+      "            <button type=\"button\" class=\"btn btn-default\" ng-click=\"$dismiss()\">Cancel</button>\n" +
+      "        </div>\n" +
+      "      </form>\n" +
+      "    </div>\n", // end of popover-content
+      scope: $scope,
+    });
+
+    mi.result.then(function(dc) { 
+      $scope.dateChange = dc; 
+      MonthAndYear.set( $scope.dateChange.year, $scope.dateChange.month );
+    });
+  }
+});
+
+
+/*
  * Charts Controller
  */
  matherApp.controller('ChartsCtrl', function ($scope, $routeParams, Messages, People) {
@@ -171,7 +228,7 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, People
     }
 
     // update all charts with data
-    var promise = Messages.wait();
+    var promise = Messages.init();
     promise.then(function() { buildPie(People.get()); });
 
  });

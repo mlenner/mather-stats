@@ -1,7 +1,25 @@
 <div>
     <div class="container">
     	<div class="page-header" style="margin-top:10px;">
-            <h1 class="col-xs-12 text-primary"><a href="#/">Mather Leaderboard</a> <small><span id="current-my">{{monthAndYear.format("MMMM YYYY")}}</span></small></h1>
+            <h1 class="text-primary">
+            	<a href="#/">Mather Leaderboard</a> 
+	            <span ng-controller="DatepickerCtrl">
+	        		<!--<small id="current-my" popover="{{pop}}" popover-append-to-body="true" popover-date-change="dateChange" testing="testing" popover-placement="bottom" popover-title="{{title}}">{{monthAndYear.format("MMMM YYYY")}}&nbsp;
+	        			<span class="caret"></span>
+	        		</small> 
+	        		<small id="current-my" ui-jq="popover" ui-options="popoverOptions">{{monthAndYear.format("MMMM YYYY")}}</small> -->
+	        		<small id="current-my" ng-click="showModal()">{{monthAndYear.current.format("MMMM YYYY")}}&nbsp;<span class="caret"></span></small>
+	        		<!--<div id="popover-bind-hack">
+	        			<select class="form-control" ng-model="dateChange.year">
+	        				<option value="2013">2013</option>
+	        				<option value="2014">2014</option>
+	        				<option value="2015">2015</option>
+	        			</select>
+	        		</div>-->
+	        		<!--<div ng-click="printyear()">check</div>-->
+	        		<!--<span>{{dateChange.year}}</span> -->
+	            </span>
+            </h1>
     	</div>
 		<loading data-ng-show="buildingGrid"></loading>	
 		<div class="row" data-ng-hide="buildingGrid" id="board">

@@ -17,43 +17,57 @@ matherApp.service("Board", function(People, Messages, $q) {
 	}
 
 	// function that can be set to act as callback when a change is detected 
-	var changeListener;
+	var listeners = {
+		changeListener : undefined,
+		reloadListener : undefined
+	};
 
+	// retrieve firebase data from other services
 	var loadData = function( monthAndDate, promise ) {
-
 		// default to current month and date
 		if (!monthAndDate) { monthAndDate = moment().format("YYYY/MM"); }
 
 		// first load people
-		People.wait()
+		People.init()
 			.then( function() { People.populateBoard( board )})
 
 			// next load the messages for those people
-			.then( Messages.wait( monthAndDate )
+			.then( Messages.init( monthAndDate )
 				.then( function() { Messages.populateBoard( board )})
 
 				// add listener to Messages now that data is loaded
 				.then( function() { 
 					Messages.listenForChange( function() {
 						Messages.populateBoard( board );
-						if ( changeListener ) { changeListener(); }
+						if ( listeners.changeListener ) { listeners.changeListener(); }
 					});
 				})
 
 				// finally, resolve the promise with the fully built board
 				.then( function() { promise.resolve( board )})
 			);
-
 	}
 
 	return {
-		wait : function( monthAndDate ) { 
+		init : function( monthAndDate ) { 
 			var deferred = $q.defer();
 			loadData( monthAndDate, deferred );
 			return deferred.promise;
 		},
+		reload : function( monthAndDate ) {
+			if ( listeners.reloadListener ) { listeners.reloadListener(); }
+			var deferred = $q.defer();
+			loadData( monthAndDate, deferred );
+			deferred.promise.then( function() {
+				if ( listeners.changeListener ) { listeners.changeListener(); }	
+			})
+			return deferred.promise;
+		},
 		setChangeListener : function( listener ) {
-			changeListener = listener;
+			listeners.changeListener = listener;
+		},
+		setReloadListener : function( listener ) {
+			listeners.reloadListener = listener;
 		}
 	}
 });
@@ -86,7 +100,7 @@ matherApp.service("People",function($firebase, $q) {
 
 	return {
 		get      : function() { return fb; },
-		wait 	 : function() { return deffered.promise; },
+		init 	 : function() { return deffered.promise; },
 		isLoaded : function() { return loaded; },
 		newImage : function(name, url) {
 			var child = fb.$child(name);
@@ -103,6 +117,22 @@ matherApp.service("People",function($firebase, $q) {
 	  		// for now, just images
 	  		populateImages( board );
 	  	},
+	}
+});
+
+matherApp.service('MonthAndYear',function( Board ) {
+	var state = {
+		current : moment()
+	}
+	return {
+		get : function() { return state; },
+		set : function( year, month ) {
+			var newDate = moment( year + "-" + month, "YYYY-MM" );
+			if ( !state.current.isSame( newDate )) {
+				state.current = newDate;
+				Board.reload( state.current.format("YYYY/MM") );
+			}
+		}
 	}
 });
 
@@ -139,6 +169,7 @@ matherApp.service('Messages',function($firebase, $q) {
 			board[p].mtd = 0;
 			board[p].latestDate = undefined;
 			board[p].perDay = undefined;
+			board[p].rank = undefined;
 		}
 
 		var index = msgs.$getIndex();
@@ -190,7 +221,7 @@ matherApp.service('Messages',function($firebase, $q) {
 	return {
 		get : function() { return msgs; },
 		isLoaded : function() { return loaded; },
-		wait : function( monthAndDate ) { 
+		init : function( monthAndDate ) { 
 			var deferred = $q.defer();
 			loadData( monthAndDate, deferred );
 			return deferred.promise; 

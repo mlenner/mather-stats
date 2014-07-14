@@ -1,0 +1,37 @@
+<div class="modal-header">
+	<button type="button" class="close" ng-click="$close()"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">Email Detail</h4>
+</div>
+<div class="modal-body">
+	<div ng-hide="msgs[mId]">
+		<h3>Loading email...</h3>
+	    <img src="images/ajax-loader-2.gif" alt="Loading..." class="img-responsive center-block" />
+	</div>
+	<form role="form" ng-show="msgs[mId]">
+		<div class="form-group">
+			<label for="from">From</label>
+			<div class="input-group">
+				<div class="input-group-addon">@</div>
+				<input class="form-control" type="text" id="from" value="{{msgs[mId].email}}"/>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="date">Sent</label>
+			<div class="input-group">
+				<div class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></div>
+				<input class="form-control" type="text" id="date" value="{{msgs[mId].date}}"/>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="subject">Subject</label>
+			<div class="input-group">
+				<div class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></div>
+				<input class="form-control" type="text" id="subject" value="{{msgs[mId].subject}}"/>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="body">Body</label>
+			<textarea class="form-control" rows="10" id="body">{{msgs[mId].body}}</textarea>
+		</div>
+	</form>
+</div>

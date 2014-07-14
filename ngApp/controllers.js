@@ -19,6 +19,10 @@ matherApp.config(['$routeProvider',
         templateUrl: 'person.html',
 	      controller: 'PersonCtrl'
       }).
+      when('/p/:pId/:year/:month/m/:mId', {
+        templateUrl: 'person.html',
+        controller: 'MessageDetailCtrl'
+      }).
       when('/charts', {
         templateUrl: 'charts.html',
         controller: 'ChartsCtrl'
@@ -84,10 +88,11 @@ matherApp.controller('LeaderboardCtrl', function ($scope, Board, MonthAndYear) {
 /* 
  * Controller for the person detail view.  Shows thier messages and allows for adding images
  */
-matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, Messages, $anchorScroll, $timeout, MonthAndYear) {
+matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, Messages, $anchorScroll, $timeout, MonthAndYear, $modal, $location) {
 	$scope.pId = $routeParams.pId;
   $scope.hideEdit = true;
   $scope.loading = { details : true };
+  $scope.monthAndYearString = MonthAndYear.get().current.format("YYYY/MM");
 
   Board.init( MonthAndYear.get().current.format("YYYY/MM") ).then( function( board ) {
     $scope.board = board;
@@ -134,6 +139,30 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, Messag
     // save in firebase
     People.newImage($scope.p.name, $scope.p.url);
 	}
+
+  $scope.msgDetail = function( mId ) {
+    $location.path( "/p/" + $scope.pId + "/" + $scope.monthAndYearString + "/m/" + mId );
+  }
+
+});
+
+/*
+ * Controller for modal popup which shows the details of a single email message
+ */
+matherApp.controller('MessageDetailCtrl', function ( $scope, $routeParams, Board, Messages, $anchorScroll, $timeout, MonthAndYear, $modal, $controller, $location ) {
+  // in case we're asking for a message on a date that isn't yet loaded
+  MonthAndYear.set( $routeParams.year, $routeParams.month );
+
+  // call out to parent controller which renders the page behind the detail modal
+  angular.extend( this, $controller( 'PersonCtrl', { $scope : $scope, $routeParams : $routeParams, Board : Board, Messages : Messages, 
+    $anchorScroll : $anchorScroll, $timeout : $timeout, MonthAndYear : MonthAndYear, $modal : $modal, $location : $location } ));
+
+  $scope.mId = $routeParams.mId;
+  $scope.msg = Messages.get();
+  $modal.open({
+        templateUrl : "partials/msgDetail.html",
+        scope : $scope
+  });
 
 });
 
@@ -191,7 +220,6 @@ matherApp.controller('DatepickerCtrl', function ($scope, $modal, MonthAndYear) {
     });
   }
 });
-
 
 /*
  * Charts Controller

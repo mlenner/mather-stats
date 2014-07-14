@@ -33,7 +33,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr data-ng-repeat="m in msgs | orderByPriority | filter:{email:pId}">
+          <tr data-ng-repeat="m in msgs | orderByPriority | filter:{email:pId}" data-ng-click="msgDetail( m.$id );" style="cursor: pointer;">
             <td>{{$index+1}}</td>
             <td>{{m.date}}</td>
             <td>{{m.subject}}</td>
@@ -42,7 +42,7 @@
       </table>
     </div>
   </div>
-  <div style="font-size: 0.75em;">
+  <div style="font-size: 0.75em;" data-ng-hide="loading.details">
     <span data-ng-click="imgControl=true">(+)&nbsp;</span>
     <span data-ng-show="imgControl" data-ng-repeat="url in p.url track by $index"><a data-ng-click="removeImg($index)">{{$index}}&nbsp;</a></span>
   </div>

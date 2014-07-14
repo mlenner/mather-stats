@@ -120,7 +120,7 @@ matherApp.service("People",function($firebase, $q) {
 	}
 });
 
-matherApp.service('MonthAndYear',function( Board ) {
+matherApp.service('MonthAndYear',function( Board, $location ) {
 	var state = {
 		current : moment()
 	}

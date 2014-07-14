@@ -100,8 +100,8 @@ matherApp.controller('PersonCtrl', function ($scope, $routeParams, Board, Messag
     $scope.msgs = Messages.get(); 
     $scope.loading = { details : false };
   });
-	
-  $anchorScroll();
+
+  if ( !$routeParams.mId ) { $anchorScroll(); }
 
   // kill the carousel if it exists
   var carouselKill = function() {

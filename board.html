@@ -1,24 +1,26 @@
 <div>
-    <div class="container">
-    	<div class="page-header" style="margin-top:10px;">
-            <h1 class="text-primary">
-            	<a href="#/">Mather Leaderboard</a> 
-	            <span ng-controller="DatepickerCtrl">
-	        		<small id="current-my" ng-click="showModal()">{{monthAndYear.current.format("MMMM YYYY")}}</small>
-	        		<span ng-click="showModal()" class="caret">&nbsp;</span>
-	            </span>
-            </h1>
-    	</div>
+	<div class="container">
+		<div class="page-header" style="margin-top:10px;">
+			<h1 class="text-primary">
+				<a href="#/">Mather Leaderboard</a> 
+				<span ng-controller="DatepickerCtrl">
+					<a ng-click="showModal()" style="cursor: pointer;">
+						<small id="current-my" >{{monthAndYear.current.format("MMMM YYYY")}}</small>
+						<span class="caret">&nbsp;</span>
+					</a>
+				</span>
+			</h1>
+		</div>
 		<loading data-ng-show="buildingGrid"></loading>	
 		<div class="row" data-ng-hide="buildingGrid" id="board">
 			<div class="container">
-	    		<div class="row" data-ng-repeat="row in grid">
-		    		<div class="col-xs-12 col-md-4 board-tile" data-ng-repeat="p in row">
-		       			<person.tile></person.tile>
-		     		</div>	
-	 			</div>
-	 		</div>
-		</div>                 
+				<div class="row" data-ng-repeat="row in grid">
+					<div class="col-xs-12 col-md-4 board-tile" data-ng-repeat="p in row">
+						<person.tile></person.tile>
+					</div>	
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 

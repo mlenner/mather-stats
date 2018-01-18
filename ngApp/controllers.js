@@ -201,6 +201,7 @@ matherApp.controller('DatepickerCtrl', function ($scope, $modal, MonthAndYear) {
       "                <option value=\"12\">December</option>\n" +
       "            </select>\n" + 
       "            <select class=\"form-control\" ng-model=\"dateChange.year\">\n" +
+      "                <option value=\"2018\">2018</option>\n" +
       "                <option value=\"2017\">2017</option>\n" +
       "                <option value=\"2016\">2016</option>\n" +
       "                <option value=\"2015\">2015</option>\n" +
